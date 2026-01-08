@@ -246,7 +246,7 @@ ${competitorsText || 'No se encontraron competidores'}
 === TU MISIÓN ===
 Basándote SOLO en la evidencia anterior:
 1. Identifica patrones recurrentes de fricción
-2. Sintetiza 3-5 ideas de Micro-SaaS que aborden estos problemas REALES
+2. Sintetiza EXACTAMENTE 4 ideas de Micro-SaaS que aborden estos problemas REALES
 3. Cada idea DEBE referenciar evidencia específica de los datos anteriores
 4. NO inventes problemas - usa solo lo que está en la evidencia
 
@@ -293,7 +293,7 @@ CRITERIOS DE PUNTUACIÓN:
 - 40-59: Una fuente, queja recurrente, potencial de pago poco claro
 - Menos de 40: Evidencia débil, idea genérica, mercado saturado
 
-IMPORTANTE: Prefiere 3 ideas DIVERSAS y específicas que 5 ideas similares.
+IMPORTANTE: Devuelve EXACTAMENTE 4 ideas diversas y específicas. Ni más ni menos.
 `;
 
   try {
@@ -463,7 +463,7 @@ FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 }
 
 Busca en internet productos REALES. Si no encuentras productos reales que cumplan los criterios, devuelve un array vacío.
-Prefiere 2-3 ideas excelentes y específicas que 5 ideas genéricas.
+IMPORTANTE: Devuelve EXACTAMENTE 4 ideas diversas y específicas. Ni más ni menos.
 `;
 
   try {
@@ -544,7 +544,7 @@ OUTPUT FORMAT (strict JSON):
   ]
 }
 
-Return 3-5 high-quality ideas based on your search findings.
+Return EXACTLY 4 high-quality ideas based on your search findings.
 `;
 
   try {
