@@ -792,6 +792,399 @@ export const VERTICALS: Vertical[] = [
   },
 
   // ============================================
+  // 🍽️ RESTAURANTES Y FOOD SERVICE
+  // ============================================
+  {
+    id: 'restaurant-management',
+    name: 'Gestión de Restaurantes',
+    searchKeywords: [
+      'restaurant pos system small cafe',
+      'table reservation booking nightmare',
+      'kitchen display system orders',
+      'menu qr code ordering contactless',
+      'food cost calculator recipe costing',
+      'waitlist management walk-in customers',
+    ],
+    platforms: ['reddit', 'g2', 'trustpilot'],
+    leadUserPatterns: [
+      'restaurant spreadsheet inventory',
+      'manual reservation book',
+      'whatsapp orders chaos',
+      'paper tickets kitchen',
+    ],
+  },
+  {
+    id: 'food-delivery-dark-kitchen',
+    name: 'Delivery y Dark Kitchens',
+    searchKeywords: [
+      'ghost kitchen management software',
+      'multi-platform delivery aggregator',
+      'rappi ubereats didifood integration',
+      'delivery driver dispatch route',
+      'food prep timing optimization',
+      'packaging inventory tracking restaurant',
+    ],
+    platforms: ['reddit', 'hackernews', 'restaurant forums'],
+    leadUserPatterns: [
+      'delivery app spreadsheet',
+      'uber eats rappi manual',
+      'kitchen timing chaos',
+    ],
+  },
+
+  // ============================================
+  // 💇 BELLEZA Y SERVICIOS PERSONALES
+  // ============================================
+  {
+    id: 'salon-spa',
+    name: 'Salones de Belleza y Spa',
+    searchKeywords: [
+      'salon booking appointment software cheap',
+      'hair stylist client management app',
+      'spa scheduling multiple services',
+      'beauty salon pos inventory products',
+      'nail technician booking independent',
+      'barbershop waitlist walk-in clients',
+    ],
+    platforms: ['reddit', 'g2', 'facebook groups'],
+    leadUserPatterns: [
+      'salon whatsapp booking',
+      'client cards paper',
+      'appointment book manual',
+      'product inventory spreadsheet',
+    ],
+  },
+  {
+    id: 'personal-services',
+    name: 'Servicios Personales (Masajes, Estética)',
+    searchKeywords: [
+      'massage therapist booking independent',
+      'esthetician client intake forms',
+      'mobile beauty services scheduling',
+      'home service provider route planning',
+      'client before after photos storage',
+      'service provider tips payment',
+    ],
+    platforms: ['reddit', 'facebook groups', 'yelp'],
+    leadUserPatterns: [
+      'client photos phone gallery',
+      'booking via instagram dm',
+      'cash tips tracking',
+    ],
+  },
+
+  // ============================================
+  // 🏋️ GIMNASIOS Y FITNESS
+  // ============================================
+  {
+    id: 'gym-studio',
+    name: 'Gimnasios y Estudios Fitness',
+    searchKeywords: [
+      'gym membership management small studio',
+      'class booking yoga pilates schedule',
+      'personal trainer client tracking',
+      'gym access control qr code',
+      'fitness studio payment recurring',
+      'crossfit box member wod tracking',
+    ],
+    platforms: ['reddit', 'facebook groups', 'g2'],
+    leadUserPatterns: [
+      'gym member spreadsheet',
+      'class signup paper list',
+      'trainer client whatsapp',
+      'membership payment manual',
+    ],
+  },
+  {
+    id: 'sports-clubs',
+    name: 'Clubes Deportivos y Academias',
+    searchKeywords: [
+      'sports club member management',
+      'soccer academy player registration',
+      'tennis court booking reservation',
+      'swim school class scheduling',
+      'martial arts dojo student tracking',
+      'sports team parent communication',
+    ],
+    platforms: ['reddit', 'facebook groups', 'sports forums'],
+    leadUserPatterns: [
+      'player roster spreadsheet',
+      'court reservation paper',
+      'parent group whatsapp',
+      'attendance manual tracking',
+    ],
+  },
+
+  // ============================================
+  // 🏫 EDUCACIÓN Y TUTORÍAS
+  // ============================================
+  {
+    id: 'tutoring-academies',
+    name: 'Tutorías y Academias',
+    searchKeywords: [
+      'tutoring scheduling software independent',
+      'online tutor payment booking',
+      'language school student management',
+      'music lesson scheduling teacher',
+      'test prep academy tracking progress',
+      'homework help tutor matching',
+    ],
+    platforms: ['reddit', 'facebook groups', 'education forums'],
+    leadUserPatterns: [
+      'student spreadsheet grades',
+      'lesson booking whatsapp',
+      'payment tracking manual',
+      'progress notes paper',
+    ],
+  },
+  {
+    id: 'driving-schools',
+    name: 'Autoescuelas',
+    searchKeywords: [
+      'driving school scheduling software',
+      'instructor calendar management',
+      'student progress tracking driving',
+      'vehicle maintenance log fleet',
+      'theory test practice platform',
+      'driving lesson booking cancellation',
+    ],
+    platforms: ['reddit', 'local forums', 'facebook groups'],
+    leadUserPatterns: [
+      'instructor schedule paper',
+      'student hours tracking manual',
+      'vehicle log book handwritten',
+    ],
+  },
+
+  // ============================================
+  // 🐕 MASCOTAS Y VETERINARIA
+  // ============================================
+  {
+    id: 'pet-services',
+    name: 'Servicios para Mascotas',
+    searchKeywords: [
+      'dog walking booking scheduling app',
+      'pet grooming salon management',
+      'pet sitting booking calendar',
+      'dog daycare check-in tracking',
+      'pet boarding reservation software',
+      'mobile pet grooming route planning',
+    ],
+    platforms: ['reddit', 'facebook groups', 'yelp'],
+    leadUserPatterns: [
+      'pet client spreadsheet',
+      'grooming appointment book',
+      'dog walking route manual',
+      'boarding calendar paper',
+    ],
+  },
+  {
+    id: 'veterinary-clinics',
+    name: 'Clínicas Veterinarias',
+    searchKeywords: [
+      'veterinary practice management small',
+      'pet medical records software',
+      'vet appointment reminder sms',
+      'vaccination schedule tracking pets',
+      'veterinary inventory medications',
+      'pet owner portal results sharing',
+    ],
+    platforms: ['reddit', 'veterinary forums', 'g2'],
+    leadUserPatterns: [
+      'pet records paper files',
+      'vaccination reminders manual',
+      'inventory tracking spreadsheet',
+    ],
+  },
+
+  // ============================================
+  // 🏠 SERVICIOS PARA EL HOGAR
+  // ============================================
+  {
+    id: 'cleaning-services',
+    name: 'Servicios de Limpieza',
+    searchKeywords: [
+      'cleaning business scheduling software',
+      'maid service booking management',
+      'house cleaning quote calculator',
+      'cleaning crew dispatch routing',
+      'janitorial service client portal',
+      'residential cleaning recurring booking',
+    ],
+    platforms: ['reddit', 'facebook groups', 'thumbtack'],
+    leadUserPatterns: [
+      'cleaning schedule spreadsheet',
+      'client list paper',
+      'route planning manual',
+      'quote calculator excel',
+    ],
+  },
+  {
+    id: 'home-repair',
+    name: 'Reparaciones y Mantenimiento del Hogar',
+    searchKeywords: [
+      'handyman scheduling quoting software',
+      'plumber electrician job management',
+      'hvac service technician dispatch',
+      'appliance repair ticket tracking',
+      'home service invoice on-site',
+      'contractor job costing small',
+    ],
+    platforms: ['reddit', 'thumbtack', 'facebook groups'],
+    leadUserPatterns: [
+      'job tracking spreadsheet',
+      'invoice paper carbon copy',
+      'parts inventory manual',
+      'scheduling calendar handwritten',
+    ],
+  },
+  {
+    id: 'landscaping-gardening',
+    name: 'Jardinería y Paisajismo',
+    searchKeywords: [
+      'lawn care scheduling routing software',
+      'landscaping quote proposal generator',
+      'gardening service client management',
+      'irrigation maintenance tracking',
+      'seasonal service recurring billing',
+      'crew time tracking landscaping',
+    ],
+    platforms: ['reddit', 'facebook groups', 'lawn care forums'],
+    leadUserPatterns: [
+      'route spreadsheet daily',
+      'quote paper manual',
+      'crew hours tracking',
+      'billing excel monthly',
+    ],
+  },
+
+  // ============================================
+  // 🚗 AUTOMOTRIZ
+  // ============================================
+  {
+    id: 'auto-repair',
+    name: 'Talleres Mecánicos',
+    searchKeywords: [
+      'auto repair shop management software',
+      'mechanic work order system',
+      'car service appointment booking',
+      'parts inventory automotive',
+      'vehicle history customer records',
+      'repair estimate quote generator',
+    ],
+    platforms: ['reddit', 'automotive forums', 'facebook groups'],
+    leadUserPatterns: [
+      'repair orders paper',
+      'parts inventory spreadsheet',
+      'customer vehicle history manual',
+      'estimate calculator excel',
+    ],
+  },
+  {
+    id: 'car-wash-detailing',
+    name: 'Lavado de Autos y Detailing',
+    searchKeywords: [
+      'car wash pos membership software',
+      'auto detailing booking scheduling',
+      'mobile detailing route planning',
+      'car wash loyalty program',
+      'detailing service package pricing',
+      'fleet wash scheduling business',
+    ],
+    platforms: ['reddit', 'auto detailing forums', 'facebook groups'],
+    leadUserPatterns: [
+      'membership tracking spreadsheet',
+      'appointment book paper',
+      'loyalty punch cards',
+      'route planning manual',
+    ],
+  },
+
+  // ============================================
+  // 📸 FOTOGRAFÍA Y EVENTOS
+  // ============================================
+  {
+    id: 'photography-events',
+    name: 'Fotografía y Videografía',
+    searchKeywords: [
+      'photographer client management crm',
+      'wedding photography contract booking',
+      'photo gallery delivery client',
+      'photography pricing package quote',
+      'event photographer scheduling',
+      'photo editing workflow management',
+    ],
+    platforms: ['reddit', 'photography forums', 'facebook groups'],
+    leadUserPatterns: [
+      'client spreadsheet bookings',
+      'contract template word',
+      'gallery sharing wetransfer',
+      'invoice manual creation',
+    ],
+  },
+  {
+    id: 'event-planning',
+    name: 'Organización de Eventos',
+    searchKeywords: [
+      'event planner client management',
+      'wedding planning timeline checklist',
+      'vendor coordination communication',
+      'event budget tracking software',
+      'guest list rsvp management',
+      'event day timeline scheduling',
+    ],
+    platforms: ['reddit', 'event planning forums', 'facebook groups'],
+    leadUserPatterns: [
+      'vendor spreadsheet contacts',
+      'timeline excel template',
+      'budget tracking manual',
+      'guest list google sheets',
+    ],
+  },
+
+  // ============================================
+  // 🏪 RETAIL Y TIENDAS FÍSICAS
+  // ============================================
+  {
+    id: 'retail-small-shops',
+    name: 'Tiendas y Comercios Pequeños',
+    searchKeywords: [
+      'small retail pos inventory simple',
+      'boutique store management software',
+      'gift shop point of sale',
+      'consignment store tracking software',
+      'small store inventory counting',
+      'retail customer loyalty program',
+    ],
+    platforms: ['reddit', 'retail forums', 'facebook groups'],
+    leadUserPatterns: [
+      'inventory spreadsheet manual',
+      'sales tracking notebook',
+      'loyalty punch cards paper',
+      'reorder tracking excel',
+    ],
+  },
+  {
+    id: 'farmers-markets',
+    name: 'Mercados y Productores Locales',
+    searchKeywords: [
+      'farmers market vendor pos mobile',
+      'farm stand inventory tracking',
+      'csa subscription box management',
+      'produce pricing calculator seasonal',
+      'market vendor booth scheduling',
+      'farm to table order management',
+    ],
+    platforms: ['reddit', 'farming forums', 'facebook groups'],
+    leadUserPatterns: [
+      'harvest tracking spreadsheet',
+      'csa member list manual',
+      'market sales paper log',
+      'pricing calculator excel',
+    ],
+  },
+
+  // ============================================
   // 🌍 LOCALIZED / LATAM
   // ============================================
   {

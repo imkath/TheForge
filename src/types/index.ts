@@ -87,6 +87,7 @@ export type SearchPlatform =
   | 'kaggle'
   | 'biggerpockets'
   | 'dba.stackexchange'
+  // Industry-specific forums
   | 'ecommerce forums'
   | 'healthcare forums'
   | 'real estate forums'
@@ -96,7 +97,23 @@ export type SearchPlatform =
   | 'twitch forums'
   | 'academia forums'
   | 'nonprofit forums'
-  // New platforms for idea import
+  | 'restaurant forums'
+  | 'veterinary forums'
+  | 'automotive forums'
+  | 'auto detailing forums'
+  | 'photography forums'
+  | 'event planning forums'
+  | 'retail forums'
+  | 'farming forums'
+  | 'lawn care forums'
+  | 'sports forums'
+  | 'education forums'
+  | 'local forums'
+  // Social and review platforms
+  | 'facebook groups'
+  | 'yelp'
+  | 'thumbtack'
+  // Import opportunity platforms
   | 'betalist'
   | 'oasisofideas';
 
