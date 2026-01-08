@@ -187,22 +187,46 @@ export async function huntOpportunities(vertical: Vertical, signal?: AbortSignal
   // Step 3: Use Gemini to ANALYZE real data (not to search)
   // Add randomness seed to ensure varied responses each time
   const creativitySeed = Math.random().toString(36).substring(2, 8);
+
+  // Different perspectives to analyze from (like the original)
   const perspectives = [
-    'desde la perspectiva de un desarrollador indie',
-    'enfocándote en nichos poco explorados',
-    'priorizando problemas con alta urgencia',
-    'buscando oportunidades de automatización',
-    'identificando fricciones en flujos de trabajo',
-    'desde el ángulo de herramientas B2B',
-    'enfocándote en productividad personal',
-    'buscando problemas recurrentes',
+    'desde la perspectiva de un desarrollador indie que puede construir un MVP en 2-4 semanas',
+    'enfocándote en nichos poco explorados donde no hay competencia fuerte',
+    'priorizando problemas con alta urgencia donde la gente pagaría HOY',
+    'buscando oportunidades de automatización de tareas manuales repetitivas',
+    'identificando fricciones en flujos de trabajo entre herramientas existentes',
+    'desde el ángulo de herramientas B2B donde hay presupuesto para pagar',
+    'enfocándote en productividad personal de profesionales independientes',
+    'buscando problemas recurrentes que generan frustración constante',
+    'pensando en mercados de LATAM y España que están desatendidos',
+    'explorando verticales donde Excel/WhatsApp son la "solución" actual',
   ];
   const randomPerspective = perspectives[Math.floor(Math.random() * perspectives.length)];
+
+  // Force diversity by requiring different TYPES of ideas
+  const ideaTypes = [
+    'automatización de tareas repetitivas',
+    'integración entre herramientas existentes',
+    'marketplace o plataforma de conexión',
+    'herramienta de análisis y reportes',
+    'app móvil para trabajo en campo',
+    'portal de autoservicio para clientes',
+    'sistema de reservas y agenda',
+    'calculadora o cotizador especializado',
+    'gestión de inventario o recursos',
+    'comunicación y notificaciones automáticas',
+    'facturación y cobros recurrentes',
+    'CRM vertical especializado',
+  ];
+
+  // Select 4-5 random types to force diversity
+  const shuffled = ideaTypes.sort(() => Math.random() - 0.5);
+  const selectedTypes = shuffled.slice(0, 5);
 
   const prompt = `
 Eres un analista experto de oportunidades Micro-SaaS usando el framework Jobs To Be Done (JTBD).
 IMPORTANTE: Responde TODO en español.
-SEED DE CREATIVIDAD: ${creativitySeed} (usa esto para variar tu análisis)
+SEED DE CREATIVIDAD: ${creativitySeed}
 PERSPECTIVA: Analiza ${randomPerspective}.
 
 VERTICAL: ${vertical.name}
@@ -226,12 +250,23 @@ Basándote SOLO en la evidencia anterior:
 3. Cada idea DEBE referenciar evidencia específica de los datos anteriores
 4. NO inventes problemas - usa solo lo que está en la evidencia
 
-⚠️ REGLAS ANTI-IDEAS GENÉRICAS (MUY IMPORTANTE):
-- RECHAZA ideas genéricas de herramientas de desarrollo como: "GitCleaner", "CodeFormatter", "ArrayOptimizer", "JSONValidator", "LogAnalyzer"
-- RECHAZA ideas que ya existen ampliamente: "Yet another todo app", "Generic dashboard builder", "Simple form builder"
+⚠️ REGLA DE DIVERSIDAD OBLIGATORIA:
+Cada idea debe ser de un TIPO DIFERENTE. Usa estos tipos como guía:
+${selectedTypes.map((t, i) => `${i + 1}. ${t}`).join('\n')}
+
+NO repitas el mismo tipo de solución. Si una idea es "automatización", la siguiente debe ser "marketplace" o "portal", etc.
+
+⚠️ REGLAS ANTI-IDEAS GENÉRICAS:
+- RECHAZA ideas genéricas de herramientas de desarrollo: "GitCleaner", "CodeFormatter", "ArrayOptimizer"
+- RECHAZA ideas que ya existen ampliamente: "Yet another todo app", "Generic dashboard"
 - RECHAZA ideas sin nicho específico: debe haber un USUARIO CONCRETO con un PROBLEMA CONCRETO
-- Cada idea debe mencionar: ¿Quién específicamente pagaría? ¿Por qué las soluciones actuales no sirven?
-- El título debe ser ESPECÍFICO al problema, no genérico. Mal: "DataSync". Bien: "SyncFacturas - Sincronización CFDI multi-SAT"
+- El título debe ser ESPECÍFICO. Mal: "DataSync". Bien: "SyncFacturas - Sincronización CFDI multi-SAT"
+
+⚠️ PIENSA EN DIFERENTES USUARIOS DENTRO DEL VERTICAL:
+- ¿Quién es el dueño del negocio? ¿Qué problemas tiene?
+- ¿Quién es el empleado/operador? ¿Qué fricciones enfrenta?
+- ¿Quién es el cliente final? ¿Cómo mejorar su experiencia?
+- ¿Hay proveedores o terceros involucrados? ¿Qué necesitan?
 
 FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 {
@@ -239,26 +274,26 @@ FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
   "ideas": [
     {
       "title": "Nombre de producto específico al problema (NO genérico)",
-      "problem": "Descripción detallada del problema con contexto específico: quién lo sufre, en qué situación, qué pierden (tiempo/dinero)",
-      "jtbd": "Cuando [situación específica con contexto], quiero [motivación concreta], para poder [resultado medible], pero [barrera actual específica]",
-      "evidence_source": "Lista de fuentes específicas (URLs o plataformas) que apoyan esta idea",
+      "problem": "Descripción detallada: quién sufre el problema, en qué situación, qué pierden (tiempo/dinero)",
+      "jtbd": "Cuando [situación específica], quiero [motivación], para poder [resultado], pero [barrera actual]",
+      "evidence_source": "Fuentes específicas (URLs o plataformas) que apoyan esta idea",
       "potential_score": 1-100,
-      "tech_stack_suggestion": "Tech recomendado para MVP (sé específico: React, Supabase, etc.)",
+      "tech_stack_suggestion": "Tech para MVP (React, Supabase, etc.)",
       "friction_type": "minor_bug | workflow_gap | critical_pain",
-      "lead_user_signals": ["Indicadores específicos de la evidencia de que existen usuarios sofisticados"],
-      "target_customer": "Descripción específica del cliente ideal (ej: 'Contadores independientes en México con 20-50 clientes')"
+      "lead_user_signals": ["Indicadores de usuarios sofisticados"],
+      "target_customer": "Cliente ideal específico (ej: 'Dueños de gimnasios pequeños con 50-200 miembros')",
+      "idea_type": "Tipo de solución (automatización, marketplace, portal, etc.)"
     }
   ]
 }
 
 CRITERIOS DE PUNTUACIÓN:
-- 80-100: Múltiples fuentes confirman el dolor, usuarios líderes construyendo soluciones, cliente objetivo claro dispuesto a pagar
-- 60-79: 2-3 fuentes confirman, gap de flujo de trabajo identificado, nicho identificable
-- 40-59: Una sola fuente, queja recurrente, potencial de pago poco claro
-- Menos de 40: Evidencia débil, idea genérica, o mercado saturado
+- 80-100: Múltiples fuentes confirman, usuarios líderes construyendo soluciones, cliente claro
+- 60-79: 2-3 fuentes confirman, gap identificado, nicho definible
+- 40-59: Una fuente, queja recurrente, potencial de pago poco claro
+- Menos de 40: Evidencia débil, idea genérica, mercado saturado
 
-IMPORTANTE: Prefiere devolver 2 ideas excelentes y específicas que 5 ideas genéricas.
-Si la evidencia solo soporta ideas genéricas, devuelve un array vacío.
+IMPORTANTE: Prefiere 3 ideas DIVERSAS y específicas que 5 ideas similares.
 `;
 
   try {
@@ -312,7 +347,30 @@ async function huntImportOpportunities(vertical: Vertical, signal?: AbortSignal)
 
   const randomQuery = searchQueries[Math.floor(Math.random() * searchQueries.length)];
 
-  // Specific verticals for import categories
+  // Diverse categories of professionals/businesses to explore
+  const targetAudiences = [
+    'contadores y despachos contables',
+    'abogados y bufetes pequeños',
+    'agentes inmobiliarios independientes',
+    'clínicas y consultorios médicos',
+    'salones de belleza y estéticas',
+    'gimnasios y estudios fitness',
+    'restaurantes y cafeterías',
+    'fotógrafos y videógrafos',
+    'coaches y consultores',
+    'escuelas y academias pequeñas',
+    'veterinarias y pet shops',
+    'talleres mecánicos',
+    'servicios de limpieza',
+    'constructoras pequeñas',
+    'agencias de marketing',
+  ];
+
+  // Select 3-4 random audiences to force diversity
+  const shuffledAudiences = targetAudiences.sort(() => Math.random() - 0.5);
+  const selectedAudiences = shuffledAudiences.slice(0, 4);
+
+  // Specific niches by import category
   const importNiches: Record<string, string[]> = {
     'import-opportunities': [
       'facturación electrónica CFDI México',
@@ -357,45 +415,49 @@ BÚSQUEDA SUGERIDA: ${randomQuery}
 NICHO ESPECÍFICO A EXPLORAR: ${randomNiche}
 CATEGORÍA: ${vertical.name}
 
-⚠️ REGLAS CRÍTICAS - ANTI-IDEAS GENÉRICAS:
-1. PROHIBIDO devolver ideas genéricas de programación: "GitCleaner", "CodeFormatter", "ArrayOptimizer", "JSONValidator", "LogAnalyzer", "DebugHelper"
-2. PROHIBIDO ideas sin mercado hispanohablante claro: debe haber un NICHO ESPECÍFICO en LATAM o España
+⚠️ REGLA DE DIVERSIDAD OBLIGATORIA:
+Cada idea debe ser para un TIPO DE NEGOCIO/PROFESIONAL DIFERENTE.
+Explora estas audiencias:
+${selectedAudiences.map((a, i) => `${i + 1}. ${a}`).join('\n')}
+
+NO repitas el mismo tipo de usuario. Si una idea es para "contadores", la siguiente debe ser para "salones de belleza" o "gimnasios", etc.
+
+⚠️ REGLAS ANTI-IDEAS GENÉRICAS:
+1. PROHIBIDO ideas genéricas de programación: "GitCleaner", "CodeFormatter", "ArrayOptimizer"
+2. PROHIBIDO ideas sin mercado hispanohablante claro
 3. PROHIBIDO productos que ya tienen competencia fuerte en español
-4. CADA idea debe mencionar un PRODUCTO REAL o categoría específica de productos que existe en inglés
+4. CADA idea debe mencionar un PRODUCTO REAL que existe en inglés
 
 CRITERIOS DE PRODUCTOS A BUSCAR:
-1. SaaS con tracción comprobada: MRR reportado, usuarios pagando, reseñas en G2/Capterra
-2. Productos que NO tienen versión en español o están mal localizados
-3. Nichos donde la regulación local importa: facturación, nómina, contabilidad, legal, inmobiliario
-4. Herramientas para profesionales específicos: contadores, abogados, agentes inmobiliarios, coaches
+1. SaaS con tracción: MRR reportado, usuarios pagando
+2. Productos sin versión en español o mal localizados
+3. Nichos donde la regulación local importa: facturación, nómina, legal
+4. Herramientas para profesionales específicos
 
-EJEMPLOS BUENOS (específicos):
-- "SimplePractice" (USA) → oportunidad para psicólogos en México sin gestión de citas HIPAA-like
-- "Gusto" (payroll USA) → nómina para PYMES en Colombia con prestaciones sociales
-- "Honeybook" (creativos USA) → CRM para fotógrafos/videógrafos en España con facturación
-
-EJEMPLOS MALOS (rechazar):
-- "DataSync" - muy genérico
-- "TaskManager Pro" - saturado
-- "API Logger" - sin mercado hispano claro
-- Cualquier herramienta de desarrollo sin contexto de localización
+EJEMPLOS BUENOS (diversos):
+- "SimplePractice" → psicólogos en México
+- "Vagaro" → salones de belleza en España
+- "Gusto" → nómina PYMES Colombia
+- "Mindbody" → gimnasios pequeños LATAM
+- "ServiceTitan" → plomeros/electricistas México
 
 FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 {
   "vertical": "${vertical.name}",
   "ideas": [
     {
-      "title": "Nombre específico al nicho hispano (ej: 'FacturaMX - Facturación CFDI para Freelancers')",
-      "problem": "Producto ORIGINAL (nombre real si existe) + por qué el mercado hispano lo necesita localizado + qué regulación/contexto falta",
-      "jtbd": "Cuando [profesional específico en país específico] necesita [acción concreta], quiere [herramienta tipo X], pero [barrera de localización específica]",
-      "evidence_source": "URL real donde encontraste el producto (ProductHunt, IndieHackers, sitio web)",
+      "title": "Nombre específico (ej: 'AgendaPro - Citas para Salones de Belleza México')",
+      "problem": "Producto ORIGINAL + por qué el mercado hispano lo necesita",
+      "jtbd": "Cuando [profesional en país] necesita [acción], quiere [herramienta], pero [barrera]",
+      "evidence_source": "URL real (ProductHunt, IndieHackers, sitio web)",
       "potential_score": 65-90,
-      "tech_stack_suggestion": "Tech para MVP con integraciones locales (ej: React + API SAT México)",
+      "tech_stack_suggestion": "Tech con integraciones locales",
       "friction_type": "workflow_gap",
-      "lead_user_signals": ["Señales de demanda: búsquedas en español, comentarios pidiendo localización, etc."],
-      "original_product": "Nombre exacto del producto en inglés",
-      "localization_opportunity": "Específico: qué regulaciones (CFDI, SII, AFIP), qué pasarelas de pago (Mercado Pago, SPEI), qué idioma/UX",
-      "target_market": "País o región específica + profesión + tamaño de empresa"
+      "lead_user_signals": ["Señales de demanda en español"],
+      "original_product": "Nombre del producto en inglés",
+      "localization_opportunity": "Regulaciones, pagos, idioma específicos",
+      "target_market": "País + profesión + tamaño",
+      "business_type": "Tipo de negocio (contadores, salones, gimnasios, etc.)"
     }
   ]
 }
