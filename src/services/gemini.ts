@@ -226,31 +226,39 @@ Basándote SOLO en la evidencia anterior:
 3. Cada idea DEBE referenciar evidencia específica de los datos anteriores
 4. NO inventes problemas - usa solo lo que está en la evidencia
 
+⚠️ REGLAS ANTI-IDEAS GENÉRICAS (MUY IMPORTANTE):
+- RECHAZA ideas genéricas de herramientas de desarrollo como: "GitCleaner", "CodeFormatter", "ArrayOptimizer", "JSONValidator", "LogAnalyzer"
+- RECHAZA ideas que ya existen ampliamente: "Yet another todo app", "Generic dashboard builder", "Simple form builder"
+- RECHAZA ideas sin nicho específico: debe haber un USUARIO CONCRETO con un PROBLEMA CONCRETO
+- Cada idea debe mencionar: ¿Quién específicamente pagaría? ¿Por qué las soluciones actuales no sirven?
+- El título debe ser ESPECÍFICO al problema, no genérico. Mal: "DataSync". Bien: "SyncFacturas - Sincronización CFDI multi-SAT"
+
 FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 {
   "vertical": "${vertical.name}",
   "ideas": [
     {
-      "title": "Nombre de producto conciso y memorable (en español)",
-      "problem": "Descripción detallada del problema sintetizada de múltiples fuentes de evidencia (en español)",
-      "jtbd": "Cuando [situación], quiero [motivación], para poder [resultado esperado], pero [barrera actual] (en español)",
+      "title": "Nombre de producto específico al problema (NO genérico)",
+      "problem": "Descripción detallada del problema con contexto específico: quién lo sufre, en qué situación, qué pierden (tiempo/dinero)",
+      "jtbd": "Cuando [situación específica con contexto], quiero [motivación concreta], para poder [resultado medible], pero [barrera actual específica]",
       "evidence_source": "Lista de fuentes específicas (URLs o plataformas) que apoyan esta idea",
       "potential_score": 1-100,
       "tech_stack_suggestion": "Tech recomendado para MVP (sé específico: React, Supabase, etc.)",
       "friction_type": "minor_bug | workflow_gap | critical_pain",
-      "lead_user_signals": ["Indicadores específicos de la evidencia de que existen usuarios sofisticados (en español)"]
+      "lead_user_signals": ["Indicadores específicos de la evidencia de que existen usuarios sofisticados"],
+      "target_customer": "Descripción específica del cliente ideal (ej: 'Contadores independientes en México con 20-50 clientes')"
     }
   ]
 }
 
 CRITERIOS DE PUNTUACIÓN:
-- 80-100: Múltiples fuentes confirman el dolor, usuarios líderes construyendo soluciones, claro potencial B2B
-- 60-79: 2-3 fuentes confirman, gap de flujo de trabajo identificado, algunas soluciones custom encontradas
+- 80-100: Múltiples fuentes confirman el dolor, usuarios líderes construyendo soluciones, cliente objetivo claro dispuesto a pagar
+- 60-79: 2-3 fuentes confirman, gap de flujo de trabajo identificado, nicho identificable
 - 40-59: Una sola fuente, queja recurrente, potencial de pago poco claro
-- Menos de 40: Evidencia débil o mercado ya bien atendido por herramientas existentes
+- Menos de 40: Evidencia débil, idea genérica, o mercado saturado
 
-IMPORTANTE: Si la evidencia es insuficiente para generar ideas de calidad, devuelve menos ideas o un array vacío.
-Calidad sobre cantidad. Solo devuelve ideas con FUERTE soporte de evidencia.
+IMPORTANTE: Prefiere devolver 2 ideas excelentes y específicas que 5 ideas genéricas.
+Si la evidencia solo soporta ideas genéricas, devuelve un array vacío.
 `;
 
   try {
@@ -304,6 +312,41 @@ async function huntImportOpportunities(vertical: Vertical, signal?: AbortSignal)
 
   const randomQuery = searchQueries[Math.floor(Math.random() * searchQueries.length)];
 
+  // Specific verticals for import categories
+  const importNiches: Record<string, string[]> = {
+    'import-opportunities': [
+      'facturación electrónica CFDI México',
+      'contabilidad PYMES España regulaciones',
+      'nómina empleados Colombia legislación',
+      'gestión de propiedades alquiler LATAM',
+      'CRM inmobiliario mercado hispano',
+    ],
+    'import-saas-tools': [
+      'scheduling booking profesionales independientes',
+      'client portal agencies español',
+      'proposal software freelancers',
+      'invoice generator autónomos España',
+      'appointment booking salones belleza',
+    ],
+    'import-fintech-latam': [
+      'expense tracking autónomos España',
+      'invoicing freelancers LATAM',
+      'subscription billing peso mexicano',
+      'payment links Mercado Pago integración',
+      'financial dashboard pequeñas empresas',
+    ],
+    'import-creator-tools': [
+      'newsletter monetization español',
+      'digital products español',
+      'online course creators hispanos',
+      'membership comunidades español',
+      'tip jar propinas creadores',
+    ],
+  };
+
+  const nicheFocus = importNiches[vertical.id] || importNiches['import-opportunities'];
+  const randomNiche = nicheFocus[Math.floor(Math.random() * nicheFocus.length)];
+
   const prompt = `
 Eres un experto en identificar oportunidades de IMPORTACIÓN de Micro-SaaS.
 Tu misión es encontrar productos SaaS REALES que están teniendo éxito en mercados de habla inglesa (USA, UK, etc.)
@@ -311,47 +354,54 @@ y que podrían ser adaptados/localizados para el mercado hispanohablante (LATAM,
 
 SEED DE VARIEDAD: ${creativitySeed}
 BÚSQUEDA SUGERIDA: ${randomQuery}
+NICHO ESPECÍFICO A EXPLORAR: ${randomNiche}
 CATEGORÍA: ${vertical.name}
 
+⚠️ REGLAS CRÍTICAS - ANTI-IDEAS GENÉRICAS:
+1. PROHIBIDO devolver ideas genéricas de programación: "GitCleaner", "CodeFormatter", "ArrayOptimizer", "JSONValidator", "LogAnalyzer", "DebugHelper"
+2. PROHIBIDO ideas sin mercado hispanohablante claro: debe haber un NICHO ESPECÍFICO en LATAM o España
+3. PROHIBIDO productos que ya tienen competencia fuerte en español
+4. CADA idea debe mencionar un PRODUCTO REAL o categoría específica de productos que existe en inglés
+
 CRITERIOS DE PRODUCTOS A BUSCAR:
-1. SaaS pequeños/medianos que ya tienen tracción (usuarios pagando, MRR reportado)
-2. Productos que NO tienen versión en español
-3. Productos enfocados en nichos donde la localización es importante (legal, contabilidad, recursos humanos, etc.)
-4. Herramientas que resuelven problemas universales pero con contexto cultural importante
-5. Productos lanzados en los últimos 2 años en ProductHunt, BetaList, IndieHackers
+1. SaaS con tracción comprobada: MRR reportado, usuarios pagando, reseñas en G2/Capterra
+2. Productos que NO tienen versión en español o están mal localizados
+3. Nichos donde la regulación local importa: facturación, nómina, contabilidad, legal, inmobiliario
+4. Herramientas para profesionales específicos: contadores, abogados, agentes inmobiliarios, coaches
 
-EJEMPLOS DE LO QUE BUSCO:
-- Un SaaS de facturación que funciona genial en USA pero no soporta CFDI de México
-- Una herramienta de HR que solo tiene soporte en inglés
-- Un CRM para agentes inmobiliarios que no entiende el mercado latinoamericano
-- Una app de contabilidad que no soporta las regulaciones de España/LATAM
+EJEMPLOS BUENOS (específicos):
+- "SimplePractice" (USA) → oportunidad para psicólogos en México sin gestión de citas HIPAA-like
+- "Gusto" (payroll USA) → nómina para PYMES en Colombia con prestaciones sociales
+- "Honeybook" (creativos USA) → CRM para fotógrafos/videógrafos en España con facturación
 
-NO QUIERO:
-- Ideas genéricas de desarrollo (como "GitCleaner", "ArrayOptimizer")
-- Herramientas de programación muy técnicas sin potencial de localización
-- Productos que ya tienen versión en español
+EJEMPLOS MALOS (rechazar):
+- "DataSync" - muy genérico
+- "TaskManager Pro" - saturado
+- "API Logger" - sin mercado hispano claro
+- Cualquier herramienta de desarrollo sin contexto de localización
 
 FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 {
   "vertical": "${vertical.name}",
   "ideas": [
     {
-      "title": "Nombre del producto localizado (en español)",
-      "problem": "Descripción del producto ORIGINAL en inglés y por qué hay oportunidad de localizarlo. Menciona el nombre real del producto si lo encuentras.",
-      "jtbd": "Cuando [empresas/personas hispanohablantes], quieren [usar herramienta X], para poder [beneficio], pero [no existe en español/no soporta regulaciones locales/etc.]",
-      "evidence_source": "URL o fuente donde encontraste este producto (ProductHunt, BetaList, IndieHackers, etc.)",
-      "potential_score": 60-95,
-      "tech_stack_suggestion": "Tech para clonar el MVP",
+      "title": "Nombre específico al nicho hispano (ej: 'FacturaMX - Facturación CFDI para Freelancers')",
+      "problem": "Producto ORIGINAL (nombre real si existe) + por qué el mercado hispano lo necesita localizado + qué regulación/contexto falta",
+      "jtbd": "Cuando [profesional específico en país específico] necesita [acción concreta], quiere [herramienta tipo X], pero [barrera de localización específica]",
+      "evidence_source": "URL real donde encontraste el producto (ProductHunt, IndieHackers, sitio web)",
+      "potential_score": 65-90,
+      "tech_stack_suggestion": "Tech para MVP con integraciones locales (ej: React + API SAT México)",
       "friction_type": "workflow_gap",
-      "lead_user_signals": ["Indicadores de demanda en español (comentarios, búsquedas, etc.)"],
-      "original_product": "Nombre del producto original en inglés si existe",
-      "localization_opportunity": "Qué aspectos específicos necesitan localización (idioma, regulaciones, pagos, etc.)"
+      "lead_user_signals": ["Señales de demanda: búsquedas en español, comentarios pidiendo localización, etc."],
+      "original_product": "Nombre exacto del producto en inglés",
+      "localization_opportunity": "Específico: qué regulaciones (CFDI, SII, AFIP), qué pasarelas de pago (Mercado Pago, SPEI), qué idioma/UX",
+      "target_market": "País o región específica + profesión + tamaño de empresa"
     }
   ]
 }
 
-Busca en internet productos REALES y devuelve 4-6 oportunidades de importación con alta calidad.
-IMPORTANTE: Cada idea debe basarse en un producto REAL o una categoría de productos que existe.
+Busca en internet productos REALES. Si no encuentras productos reales que cumplan los criterios, devuelve un array vacío.
+Prefiere 2-3 ideas excelentes y específicas que 5 ideas genéricas.
 `;
 
   try {
