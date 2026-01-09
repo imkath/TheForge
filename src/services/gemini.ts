@@ -137,6 +137,227 @@ function formatEvidenceForPrompt(items: EvidenceItem[], maxItems = 15): string {
 }
 
 /**
+ * Get vertical-specific context and examples for better idea relevance
+ */
+function getVerticalContext(vertical: Vertical): {
+  domain: string;
+  targetUsers: string[];
+  validExamples: string[];
+  invalidExamples: string[];
+  mustInclude: string[];
+} {
+  const verticalId = vertical.id.toLowerCase();
+  const verticalName = vertical.name.toLowerCase();
+
+  // Research & Academia
+  if (verticalId.includes('research') || verticalId.includes('academia') || verticalName.includes('investigación') || verticalName.includes('academia')) {
+    return {
+      domain: 'investigación académica, universidades, laboratorios y publicaciones científicas',
+      targetUsers: ['investigadores', 'profesores universitarios', 'doctorandos', 'postdocs', 'directores de laboratorio', 'bibliotecarios académicos'],
+      validExamples: [
+        'CitaSync - Sincronizador de referencias entre Zotero y Mendeley',
+        'GrantTracker - Seguimiento de deadlines de becas y grants para investigadores',
+        'LabNotebook - Cuaderno de laboratorio digital con versionado',
+        'PeerReview Hub - Gestión de revisiones de papers para editores académicos',
+        'ThesisProgress - Tracker de avance de tesis doctoral con milestones',
+      ],
+      invalidExamples: [
+        'GitCleaner - Herramienta de limpieza de repos (NO es académico)',
+        'ArrayOptimizer - Optimizador de código JavaScript (NO es académico)',
+        'APIMonitor - Monitor de endpoints (NO es académico)',
+      ],
+      mustInclude: ['universidad', 'investigador', 'paper', 'tesis', 'laboratorio', 'académico', 'científico', 'publicación', 'beca', 'grant', 'doctorado'],
+    };
+  }
+
+  // Developer Tools
+  if (verticalId.includes('developer') || verticalId.includes('devops') || verticalId.includes('api') || verticalId.includes('database')) {
+    return {
+      domain: 'desarrollo de software, DevOps, APIs y bases de datos',
+      targetUsers: ['desarrolladores', 'ingenieros de software', 'DevOps engineers', 'tech leads', 'CTOs de startups'],
+      validExamples: [
+        'EnvSync - Sincronización de variables de entorno entre equipos',
+        'PRReview Bot - Bot de revisión de PRs con checklist automatizado',
+        'DBMigrate - Visualizador de migraciones de base de datos',
+        'APIDoc Generator - Generador de documentación OpenAPI desde código',
+      ],
+      invalidExamples: [
+        'RecetaApp - App de recetas de cocina (NO es dev tools)',
+        'GymTracker - Seguimiento de ejercicios (NO es dev tools)',
+      ],
+      mustInclude: ['código', 'desarrollador', 'API', 'deploy', 'git', 'CI/CD', 'base de datos', 'debugging', 'testing'],
+    };
+  }
+
+  // Restaurant & Food
+  if (verticalId.includes('restaurant') || verticalId.includes('food') || verticalId.includes('kitchen')) {
+    return {
+      domain: 'restaurantes, cafeterías, dark kitchens y servicio de alimentos',
+      targetUsers: ['dueños de restaurantes', 'gerentes de cocina', 'chefs', 'meseros', 'operadores de delivery'],
+      validExamples: [
+        'MesaFácil - Reservaciones para restaurantes pequeños sin comisiones',
+        'CocinaSync - Sincronización de pedidos entre cocina y meseros',
+        'CosteoReceta - Calculadora de costos por platillo con ingredientes',
+        'MenuQR - Menú digital con pedidos y pagos integrados',
+      ],
+      invalidExamples: [
+        'CodeFormatter - Formateador de código (NO es restaurantes)',
+        'InvoiceGen - Facturación genérica (NO es específico de restaurantes)',
+      ],
+      mustInclude: ['restaurante', 'cocina', 'menú', 'platillo', 'reservación', 'mesero', 'delivery', 'comida', 'chef'],
+    };
+  }
+
+  // Salon & Beauty
+  if (verticalId.includes('salon') || verticalId.includes('beauty') || verticalId.includes('spa') || verticalName.includes('belleza')) {
+    return {
+      domain: 'salones de belleza, spas, estéticas y servicios personales de cuidado',
+      targetUsers: ['dueños de salones', 'estilistas', 'manicuristas', 'esteticistas', 'masajistas'],
+      validExamples: [
+        'CitaSalon - Agenda de citas para estilistas independientes',
+        'ClientesBelleza - CRM para salones con historial de servicios',
+        'ComisionesSalon - Cálculo de comisiones por estilista',
+        'InventarioSalon - Control de productos de belleza y tintes',
+      ],
+      invalidExamples: [
+        'GitManager - Gestor de repositorios (NO es salones)',
+        'TaskBoard - Tablero de tareas genérico (NO es específico)',
+      ],
+      mustInclude: ['salón', 'belleza', 'estilista', 'cita', 'corte', 'tinte', 'manicure', 'spa', 'cliente'],
+    };
+  }
+
+  // Gym & Fitness
+  if (verticalId.includes('gym') || verticalId.includes('fitness') || verticalId.includes('sports')) {
+    return {
+      domain: 'gimnasios, estudios fitness, entrenadores personales y clubes deportivos',
+      targetUsers: ['dueños de gimnasios', 'entrenadores personales', 'instructores de yoga/pilates', 'administradores de clubes'],
+      validExamples: [
+        'GymCheck - Control de acceso y membresías para gyms pequeños',
+        'WODTracker - Seguimiento de entrenamientos para boxes de CrossFit',
+        'ClasesFit - Reservación de clases grupales con capacidad limitada',
+        'EntrenadorPro - Gestión de clientes para personal trainers',
+      ],
+      invalidExamples: [
+        'APITester - Pruebas de APIs (NO es fitness)',
+        'DataAnalyzer - Análisis de datos genérico (NO es específico)',
+      ],
+      mustInclude: ['gimnasio', 'entrenador', 'fitness', 'membresía', 'clase', 'ejercicio', 'workout', 'gym'],
+    };
+  }
+
+  // Healthcare & Medical
+  if (verticalId.includes('healthcare') || verticalId.includes('medical') || verticalId.includes('veterinary') || verticalName.includes('médico') || verticalName.includes('veterinaria')) {
+    return {
+      domain: 'consultorios médicos, clínicas, veterinarias y servicios de salud',
+      targetUsers: ['médicos', 'dentistas', 'veterinarios', 'enfermeras', 'administradores de clínicas'],
+      validExamples: [
+        'CitaMédica - Agenda de citas con recordatorios SMS para consultorios',
+        'HistorialPet - Expediente médico digital para veterinarias',
+        'RecetaDigital - Generador de recetas médicas electrónicas',
+        'TurnoClínica - Gestión de turnos y sala de espera',
+      ],
+      invalidExamples: [
+        'CodeReview - Revisión de código (NO es salud)',
+        'ProjectManager - Gestión de proyectos genérica (NO es específico)',
+      ],
+      mustInclude: ['paciente', 'cita', 'médico', 'clínica', 'consultorio', 'receta', 'diagnóstico', 'tratamiento'],
+    };
+  }
+
+  // Real Estate
+  if (verticalId.includes('real-estate') || verticalId.includes('property')) {
+    return {
+      domain: 'corredores de propiedades, administración de inmuebles y bienes raíces',
+      targetUsers: ['corredores inmobiliarios', 'administradores de propiedades', 'propietarios', 'arrendadores'],
+      validExamples: [
+        'PropiedadCRM - CRM para corredores inmobiliarios independientes',
+        'RentaFácil - Cobro de rentas con recordatorios automáticos',
+        'ShowingPro - Coordinación de visitas a propiedades',
+        'ContratoRenta - Generador de contratos de arrendamiento',
+      ],
+      invalidExamples: [
+        'LogViewer - Visualizador de logs (NO es inmobiliario)',
+        'TeamChat - Chat de equipos genérico (NO es específico)',
+      ],
+      mustInclude: ['propiedad', 'inmueble', 'renta', 'arrendamiento', 'corredor', 'inquilino', 'propietario'],
+    };
+  }
+
+  // E-commerce
+  if (verticalId.includes('ecommerce') || verticalId.includes('dropshipping') || verticalId.includes('retail')) {
+    return {
+      domain: 'tiendas en línea, e-commerce, dropshipping y retail',
+      targetUsers: ['dueños de tiendas online', 'vendedores de marketplace', 'dropshippers', 'comerciantes'],
+      validExamples: [
+        'StockSync - Sincronización de inventario multi-tienda',
+        'PrecioSpy - Monitor de precios de competencia en marketplaces',
+        'ReviewBoost - Gestión de reseñas de productos',
+        'EnvíoTrack - Tracking de envíos con notificaciones al cliente',
+      ],
+      invalidExamples: [
+        'TerminalTool - Herramienta de terminal (NO es ecommerce)',
+        'DocGenerator - Generador de documentos genérico (NO es específico)',
+      ],
+      mustInclude: ['tienda', 'producto', 'inventario', 'pedido', 'envío', 'cliente', 'venta', 'marketplace'],
+    };
+  }
+
+  // Marketing & Social Media
+  if (verticalId.includes('marketing') || verticalId.includes('social') || verticalId.includes('seo')) {
+    return {
+      domain: 'marketing digital, redes sociales, SEO y crecimiento',
+      targetUsers: ['marketers', 'community managers', 'especialistas SEO', 'growth hackers', 'creadores de contenido'],
+      validExamples: [
+        'PostScheduler - Programador de posts para múltiples redes',
+        'SEOAudit - Auditor SEO simplificado para pequeños sitios',
+        'HashtagFinder - Sugeridor de hashtags por nicho',
+        'InfluencerMatch - Conexión con micro-influencers por vertical',
+      ],
+      invalidExamples: [
+        'DatabaseTool - Herramienta de base de datos (NO es marketing)',
+        'ServerMonitor - Monitor de servidores (NO es específico)',
+      ],
+      mustInclude: ['contenido', 'redes sociales', 'SEO', 'campaña', 'audiencia', 'engagement', 'marketing'],
+    };
+  }
+
+  // Fintech & Accounting
+  if (verticalId.includes('fintech') || verticalId.includes('bookkeeping') || verticalId.includes('expense') || verticalName.includes('contabilidad')) {
+    return {
+      domain: 'fintech, contabilidad, facturación y gestión financiera',
+      targetUsers: ['freelancers', 'contadores', 'dueños de PYMES', 'autónomos', 'administradores'],
+      validExamples: [
+        'FacturaMX - Facturación CFDI para freelancers mexicanos',
+        'GastoTrack - Seguimiento de gastos con categorización automática',
+        'CobrosRecurrentes - Gestión de suscripciones y cobros',
+        'ImpuestosFácil - Calculadora de impuestos trimestrales',
+      ],
+      invalidExamples: [
+        'GitHelper - Ayudante de Git (NO es fintech)',
+        'DesignTool - Herramienta de diseño (NO es específico)',
+      ],
+      mustInclude: ['factura', 'impuesto', 'gasto', 'ingreso', 'contabilidad', 'cobro', 'pago', 'financiero'],
+    };
+  }
+
+  // Default - generic business vertical
+  return {
+    domain: `el sector de ${vertical.name}`,
+    targetUsers: ['profesionales del sector', 'dueños de negocios pequeños', 'freelancers especializados'],
+    validExamples: [
+      `Herramientas específicas para ${vertical.name}`,
+      'Soluciones que abordan problemas reales del sector',
+    ],
+    invalidExamples: [
+      'Herramientas genéricas de desarrollo de software',
+      'Apps de productividad personal sin relación al vertical',
+    ],
+    mustInclude: vertical.searchKeywords.slice(0, 5).map(k => k.split(' ')[0]),
+  };
+}
+
+/**
  * Check if a vertical is an "import opportunity" vertical
  */
 function isImportVertical(vertical: Vertical): boolean {
@@ -188,6 +409,9 @@ export async function huntOpportunities(vertical: Vertical, signal?: AbortSignal
   // Add randomness seed to ensure varied responses each time
   const creativitySeed = Math.random().toString(36).substring(2, 8);
 
+  // Get vertical-specific context for relevance validation
+  const verticalContext = getVerticalContext(vertical);
+
   // Different perspectives to analyze from (like the original)
   const perspectives = [
     'desde la perspectiva de un desarrollador indie que puede construir un MVP en 2-4 semanas',
@@ -229,13 +453,40 @@ IMPORTANTE: Responde TODO en español.
 SEED DE CREATIVIDAD: ${creativitySeed}
 PERSPECTIVA: Analiza ${randomPerspective}.
 
-VERTICAL: ${vertical.name}
+═══════════════════════════════════════════════════════════════════════════════
+⚠️⚠️⚠️ REGLA CRÍTICA DE RELEVANCIA - LEE ESTO PRIMERO ⚠️⚠️⚠️
+═══════════════════════════════════════════════════════════════════════════════
+
+VERTICAL OBJETIVO: ${vertical.name}
+DOMINIO: ${verticalContext.domain}
+
+🎯 USUARIOS OBJETIVO (SOLO estos):
+${verticalContext.targetUsers.map(u => `• ${u}`).join('\n')}
+
+✅ EJEMPLOS DE IDEAS VÁLIDAS para este vertical:
+${verticalContext.validExamples.map(e => `• ${e}`).join('\n')}
+
+❌ EJEMPLOS DE IDEAS INVÁLIDAS (PROHIBIDAS):
+${verticalContext.invalidExamples.map(e => `• ${e}`).join('\n')}
+
+🔑 CADA IDEA DEBE mencionar al menos UNO de estos conceptos del dominio:
+${verticalContext.mustInclude.join(', ')}
+
+⛔ REGLA DE RECHAZO AUTOMÁTICO:
+Si una idea NO está directamente relacionada con "${vertical.name}", DESCÁRTALA.
+NO generes ideas de:
+- Herramientas genéricas de programación (Git, APIs, código)
+- Apps de productividad personal genéricas
+- Soluciones que podrían ser de cualquier industria
+- Ideas que no mencionen usuarios específicos del vertical
+
+═══════════════════════════════════════════════════════════════════════════════
 
 He recopilado quejas y discusiones REALES de usuarios de Reddit, Hacker News, DEV.to y otras fuentes.
-Tu trabajo es ANALIZAR esta evidencia y sintetizar oportunidades de Micro-SaaS.
+Tu trabajo es ANALIZAR esta evidencia y sintetizar oportunidades de Micro-SaaS ESPECÍFICAS para ${vertical.name}.
 
 === PUNTOS DE DOLOR REALES ENCONTRADOS ===
-${painPointsText || 'No se encontraron puntos de dolor'}
+${painPointsText || 'No se encontraron puntos de dolor específicos - genera ideas basándote en tu conocimiento del sector'}
 
 === SEÑALES DE USUARIOS LÍDERES (personas construyendo soluciones propias) ===
 ${leadUsersText || 'No se encontraron señales de usuarios líderes'}
@@ -244,11 +495,11 @@ ${leadUsersText || 'No se encontraron señales de usuarios líderes'}
 ${competitorsText || 'No se encontraron competidores'}
 
 === TU MISIÓN ===
-Basándote SOLO en la evidencia anterior:
-1. Identifica patrones recurrentes de fricción
-2. Sintetiza MÍNIMO 4 ideas de Micro-SaaS que aborden estos problemas REALES (pueden ser más si la evidencia lo justifica)
-3. Cada idea DEBE referenciar evidencia específica de los datos anteriores
-4. NO inventes problemas - usa solo lo que está en la evidencia
+Basándote en la evidencia anterior Y tu conocimiento del sector "${vertical.name}":
+1. Identifica patrones recurrentes de fricción EN ESTE VERTICAL ESPECÍFICO
+2. Sintetiza MÍNIMO 4 ideas de Micro-SaaS que aborden problemas de ${verticalContext.targetUsers.slice(0, 3).join(', ')}
+3. Cada idea DEBE ser específica para ${vertical.name} - NO ideas genéricas
+4. Si la evidencia es débil, usa tu conocimiento del dominio para proponer ideas relevantes
 
 ⚠️ REGLA DE DIVERSIDAD OBLIGATORIA:
 Cada idea debe ser de un TIPO DIFERENTE. Usa estos tipos como guía:
@@ -256,17 +507,11 @@ ${selectedTypes.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
 NO repitas el mismo tipo de solución. Si una idea es "automatización", la siguiente debe ser "marketplace" o "portal", etc.
 
-⚠️ REGLAS ANTI-IDEAS GENÉRICAS:
-- RECHAZA ideas genéricas de herramientas de desarrollo: "GitCleaner", "CodeFormatter", "ArrayOptimizer"
-- RECHAZA ideas que ya existen ampliamente: "Yet another todo app", "Generic dashboard"
-- RECHAZA ideas sin nicho específico: debe haber un USUARIO CONCRETO con un PROBLEMA CONCRETO
-- El título debe ser ESPECÍFICO. Mal: "DataSync". Bien: "SyncFacturas - Sincronización CFDI multi-SAT"
-
-⚠️ PIENSA EN DIFERENTES USUARIOS DENTRO DEL VERTICAL:
-- ¿Quién es el dueño del negocio? ¿Qué problemas tiene?
-- ¿Quién es el empleado/operador? ¿Qué fricciones enfrenta?
-- ¿Quién es el cliente final? ¿Cómo mejorar su experiencia?
-- ¿Hay proveedores o terceros involucrados? ¿Qué necesitan?
+⚠️ VALIDACIÓN FINAL - Antes de incluir cada idea, pregúntate:
+1. ¿Esta idea es ESPECÍFICA para ${vertical.name}? Si no, DESCÁRTALA.
+2. ¿El usuario objetivo es uno de: ${verticalContext.targetUsers.slice(0, 3).join(', ')}? Si no, DESCÁRTALA.
+3. ¿La idea menciona conceptos del dominio como ${verticalContext.mustInclude.slice(0, 4).join(', ')}? Si no, DESCÁRTALA.
+4. ¿Es una herramienta genérica de desarrollo/productividad disfrazada? Si sí, DESCÁRTALA.
 
 FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
 {
@@ -274,26 +519,26 @@ FORMATO DE SALIDA (JSON estricto, TODO EN ESPAÑOL):
   "ideas": [
     {
       "title": "Nombre de producto específico al problema (NO genérico)",
-      "problem": "Descripción detallada: quién sufre el problema, en qué situación, qué pierden (tiempo/dinero)",
-      "jtbd": "Cuando [situación específica], quiero [motivación], para poder [resultado], pero [barrera actual]",
+      "problem": "Descripción detallada: quién sufre el problema (usar términos del vertical), en qué situación, qué pierden (tiempo/dinero)",
+      "jtbd": "Cuando [situación específica del vertical], quiero [motivación], para poder [resultado], pero [barrera actual]",
       "evidence_source": "Fuentes específicas (URLs o plataformas) que apoyan esta idea",
       "potential_score": 1-100,
       "tech_stack_suggestion": "Tech para MVP (React, Supabase, etc.)",
       "friction_type": "minor_bug | workflow_gap | critical_pain",
       "lead_user_signals": ["Indicadores de usuarios sofisticados"],
-      "target_customer": "Cliente ideal específico (ej: 'Dueños de gimnasios pequeños con 50-200 miembros')",
+      "target_customer": "Cliente ideal específico usando términos del vertical (ej: '${verticalContext.targetUsers[0]}')",
       "idea_type": "Tipo de solución (automatización, marketplace, portal, etc.)"
     }
   ]
 }
 
 CRITERIOS DE PUNTUACIÓN:
-- 80-100: Múltiples fuentes confirman, usuarios líderes construyendo soluciones, cliente claro
-- 60-79: 2-3 fuentes confirman, gap identificado, nicho definible
-- 40-59: Una fuente, queja recurrente, potencial de pago poco claro
-- Menos de 40: Evidencia débil, idea genérica, mercado saturado
+- 80-100: Múltiples fuentes confirman, usuarios líderes construyendo soluciones, cliente claro del vertical
+- 60-79: 2-3 fuentes confirman, gap identificado, nicho definible dentro del vertical
+- 40-59: Una fuente, queja recurrente en el vertical, potencial de pago poco claro
+- Menos de 40: Evidencia débil, idea genérica o fuera del vertical
 
-IMPORTANTE: Devuelve MÍNIMO 4 ideas diversas y específicas. Pueden ser más (5-6) si encuentras suficiente evidencia.
+IMPORTANTE: Devuelve MÍNIMO 4 ideas diversas y específicas para ${vertical.name}. Pueden ser más (5-6) si encuentras suficiente evidencia.
 `;
 
   try {
