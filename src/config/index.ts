@@ -24,7 +24,7 @@ export const config = {
     // Cloudflare Worker API proxy URL
     // In production, this will be the deployed worker URL
     // In development, use the local wrangler dev server
-    baseUrl: import.meta.env.VITE_API_URL || 'https://theforge-api.workers.dev',
+    baseUrl: import.meta.env.VITE_API_URL || 'https://theforge-api.kathcastillosanchez.workers.dev',
   },
   app: {
     id: import.meta.env.VITE_APP_ID || 'microsaas-forge-v1',
