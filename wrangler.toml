@@ -1,0 +1,21 @@
+# Cloudflare Pages configuration
+name = "theforge"
+compatibility_date = "2024-01-01"
+
+# Pages will auto-detect these settings
+# Build command: npm run build
+# Build output: dist
+
+# Environment variables for build (set in Cloudflare Dashboard)
+# VITE_FIREBASE_API_KEY
+# VITE_FIREBASE_AUTH_DOMAIN
+# VITE_FIREBASE_PROJECT_ID
+# VITE_FIREBASE_STORAGE_BUCKET
+# VITE_FIREBASE_MESSAGING_SENDER_ID
+# VITE_FIREBASE_APP_ID
+# VITE_GEMINI_API_KEY
+# VITE_OPENAI_API_KEY
+# VITE_SERPER_API_KEY
+# VITE_PRODUCTHUNT_API_KEY
+# VITE_PRODUCTHUNT_API_SECRET
+# VITE_APP_ID

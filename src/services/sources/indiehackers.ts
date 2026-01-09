@@ -4,7 +4,7 @@
  * IndieHackers doesn't have a public API, but we can use their
  * Algolia-powered search (similar to HN)
  *
- * CORS Solution: Uses CORS proxy for Algolia requests
+ * CORS Solution: Uses Cloudflare Worker proxy (no CORS issues)
  *
  * Great for finding:
  * - SaaS ideas being discussed
@@ -13,7 +13,7 @@
  * - Revenue discussions
  */
 
-import { postWithCorsProxy } from '../utils/corsProxy';
+import { config } from '@/config';
 
 export interface IndieHackersPost {
   id: string;
@@ -34,13 +34,8 @@ export interface IndieHackersSearchResult {
   totalCount: number;
 }
 
-// IndieHackers uses Algolia - we'll search via their public endpoint
-const IH_ALGOLIA_APP_ID = 'N36RSOIVP9';
-const IH_ALGOLIA_SEARCH_KEY = '69e9e7ecb0654ce498f5e6a44b3d6243';
-const IH_ALGOLIA_URL = `https://${IH_ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes`;
-
 /**
- * Search IndieHackers posts via Algolia (with CORS proxy)
+ * Search IndieHackers posts via Cloudflare Worker proxy
  */
 export async function searchIndieHackers(
   query: string,
@@ -53,14 +48,17 @@ export async function searchIndieHackers(
 
   try {
     const indexName = type === 'products' ? 'products' : 'posts';
-    const algoliaUrl = `${IH_ALGOLIA_URL}/${indexName}/query`;
 
-    // Use CORS proxy for Algolia request
-    const data = await postWithCorsProxy<{ hits?: any[]; nbHits?: number }>(
-      algoliaUrl,
-      {
+    // Use Cloudflare Worker proxy (no CORS issues)
+    const response = await fetch(`${config.api.baseUrl}/api/indiehackers/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         query,
         hitsPerPage,
+        indexName,
         attributesToRetrieve: [
           'objectID',
           'title',
@@ -71,14 +69,14 @@ export async function searchIndieHackers(
           'createdAt',
           'slug',
         ],
-      },
-      {
-        headers: {
-          'X-Algolia-Application-Id': IH_ALGOLIA_APP_ID,
-          'X-Algolia-API-Key': IH_ALGOLIA_SEARCH_KEY,
-        },
-      }
-    );
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+
+    const data = await response.json();
 
     const items: IndieHackersPost[] = (data.hits || []).map((hit: any) => ({
       id: hit.objectID,
@@ -100,9 +98,8 @@ export async function searchIndieHackers(
       query,
       totalCount: data.nbHits || 0,
     };
-  } catch (error) {
-    // Silent fail - don't flood console
-    console.debug('[IndieHackers] Search failed (CORS proxy):', error);
+  } catch {
+    // Silent fail - return empty results
     return { items: [], source: 'indiehackers', query, totalCount: 0 };
   }
 }

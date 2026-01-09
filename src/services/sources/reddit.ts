@@ -4,7 +4,7 @@
  * Uses Reddit's public JSON API - no authentication required
  * Endpoint: https://www.reddit.com/search.json
  *
- * CORS Solution: Uses allorigins.win proxy for browser requests
+ * CORS Solution: Uses Cloudflare Worker proxy (no CORS issues)
  *
  * Limitations:
  * - Rate limited (respect 1 request per second)
@@ -13,6 +13,8 @@
  *
  * Source: https://www.reddit.com/dev/api/
  */
+
+import { config } from '@/config';
 
 export interface RedditPost {
   title: string;
@@ -33,45 +35,6 @@ export interface RedditSearchResult {
 }
 
 const REDDIT_BASE_URL = 'https://www.reddit.com';
-
-// CORS proxy options (fallback chain - updated URLs)
-const CORS_PROXIES = [
-  (url: string) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  (url: string) => `https://proxy.cors.sh/${url}`,
-];
-
-let currentProxyIndex = 0;
-
-/**
- * Fetch with CORS proxy fallback
- */
-async function fetchWithProxy(url: string): Promise<Response> {
-  // Try each proxy until one works
-  for (let i = 0; i < CORS_PROXIES.length; i++) {
-    const proxyIndex = (currentProxyIndex + i) % CORS_PROXIES.length;
-    const proxyUrl = CORS_PROXIES[proxyIndex](url);
-
-    try {
-      const response = await fetch(proxyUrl, {
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Remember which proxy worked
-        currentProxyIndex = proxyIndex;
-        return response;
-      }
-    } catch (error) {
-      console.warn(`[Reddit] Proxy ${proxyIndex} failed, trying next...`);
-    }
-  }
-
-  throw new Error('All CORS proxies failed');
-}
 
 // Subreddits relevant for Micro-SaaS opportunity hunting
 const SAAS_SUBREDDITS = [
@@ -106,7 +69,7 @@ const PAIN_KEYWORDS = [
 ];
 
 /**
- * Search Reddit for posts matching a query
+ * Search Reddit for posts matching a query via Cloudflare Worker
  */
 export async function searchReddit(
   query: string,
@@ -120,26 +83,25 @@ export async function searchReddit(
   const { sort = 'relevance', time = 'month', limit = 25, subreddit } = options;
 
   try {
-    const baseUrl = subreddit
-      ? `${REDDIT_BASE_URL}/r/${subreddit}/search.json`
-      : `${REDDIT_BASE_URL}/search.json`;
-
     const params = new URLSearchParams({
       q: query,
       sort,
       t: time,
       limit: limit.toString(),
-      restrict_sr: subreddit ? 'true' : 'false',
     });
 
-    const fullUrl = `${baseUrl}?${params}`;
+    if (subreddit) {
+      params.set('subreddit', subreddit);
+    }
+
     console.log(`[Reddit] Searching: ${query}`);
 
-    const response = await fetchWithProxy(fullUrl);
+    const response = await fetch(`${config.api.baseUrl}/api/reddit/search?${params}`);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+
     const data = await response.json();
 
     if (!data.data?.children) {
-      console.warn('[Reddit] No data in response');
       return { posts: [], source: 'reddit', query };
     }
 
@@ -162,8 +124,7 @@ export async function searchReddit(
       source: 'reddit',
       query,
     };
-  } catch (error) {
-    console.error('[Reddit] Search failed:', error);
+  } catch {
     return { posts: [], source: 'reddit', query };
   }
 }
@@ -181,7 +142,7 @@ export async function searchPainPoints(vertical: string): Promise<RedditPost[]> 
 
   for (const query of queries) {
     // Add delay to respect rate limits
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const result = await searchReddit(query, {
       sort: 'relevance',
@@ -220,17 +181,18 @@ export async function searchSubredditComplaints(
 }
 
 /**
- * Get trending posts from SaaS-related subreddits
+ * Get trending posts from SaaS-related subreddits via Cloudflare Worker
  */
 export async function getTrendingSaaSPosts(): Promise<RedditPost[]> {
   const allPosts: RedditPost[] = [];
 
   for (const subreddit of SAAS_SUBREDDITS.slice(0, 3)) {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     try {
-      const url = `${REDDIT_BASE_URL}/r/${subreddit}/hot.json?limit=10`;
-      const response = await fetchWithProxy(url);
+      const response = await fetch(`${config.api.baseUrl}/api/reddit/r/${subreddit}/hot?limit=10`);
+      if (!response.ok) continue;
+
       const data = await response.json();
 
       if (data.data?.children) {
@@ -248,8 +210,8 @@ export async function getTrendingSaaSPosts(): Promise<RedditPost[]> {
         allPosts.push(...posts);
         console.log(`[Reddit] Got ${posts.length} trending posts from r/${subreddit}`);
       }
-    } catch (error) {
-      console.error(`[Reddit] Failed to fetch from r/${subreddit}:`, error);
+    } catch {
+      // Silent fail for individual subreddits
     }
   }
 
@@ -273,7 +235,7 @@ export async function searchRedditQuestions(keywords: string[]): Promise<RedditP
 
   for (const keyword of keywords.slice(0, 2)) {
     for (const phrase of questionPhrases.slice(0, 2)) {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const result = await searchReddit(`${keyword} ${phrase}`, {
         sort: 'relevance',
@@ -294,12 +256,11 @@ export async function searchRedditQuestions(keywords: string[]): Promise<RedditP
 }
 
 /**
- * Check if Reddit is available (test proxy)
+ * Check if Reddit API is available via Worker
  */
 export async function isRedditAvailable(): Promise<boolean> {
   try {
-    const testUrl = `${REDDIT_BASE_URL}/r/SaaS/hot.json?limit=1`;
-    const response = await fetchWithProxy(testUrl);
+    const response = await fetch(`${config.api.baseUrl}/api/health`);
     return response.ok;
   } catch {
     return false;
