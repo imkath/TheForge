@@ -1,6 +1,7 @@
-import { Cpu, Zap, Database, FlaskConical, Settings } from 'lucide-react';
+import { Zap, Database, FlaskConical, Settings } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useForgeStore } from '@/hooks';
+import { Logo } from './Logo';
 
 export function Sidebar() {
   const { view, setView, savedIdeas } = useForgeStore();
@@ -13,9 +14,9 @@ export function Sidebar() {
 
   return (
     <nav className="fixed left-0 top-0 h-full w-20 bg-forge-surface border-r border-white/5 flex flex-col items-center py-8 z-50">
-      {/* Logo */}
-      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-8">
-        <Cpu className="text-white" size={24} />
+      {/* Logo - matches favicon */}
+      <div className="mb-8 shadow-lg shadow-indigo-500/20 rounded-2xl overflow-hidden">
+        <Logo size={48} />
       </div>
 
       {/* Navigation */}

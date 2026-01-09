@@ -20,6 +20,12 @@ export const config = {
     model: 'gpt-4o-mini',
     endpoint: 'https://api.openai.com/v1/chat/completions',
   },
+  api: {
+    // Cloudflare Worker API proxy URL
+    // In production, this will be the deployed worker URL
+    // In development, use the local wrangler dev server
+    baseUrl: import.meta.env.VITE_API_URL || 'https://theforge-api.workers.dev',
+  },
   app: {
     id: import.meta.env.VITE_APP_ID || 'microsaas-forge-v1',
     name: 'The Forge',

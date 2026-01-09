@@ -24,7 +24,7 @@ const CORS_PROXIES: ProxyConfig[] = [
     formatUrl: (url: string) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
   },
   {
-    // Fallback 1 - AllOrigins
+    // Fallback 1 - AllOrigins (raw mode)
     name: 'allorigins.win',
     formatUrl: (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   },
@@ -34,9 +34,14 @@ const CORS_PROXIES: ProxyConfig[] = [
     formatUrl: (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   },
   {
-    // Fallback 3 - Alternative format for corsproxy
-    name: 'corsproxy-alt',
+    // Fallback 3 - cors.sh (free tier)
+    name: 'cors.sh',
     formatUrl: (url: string) => `https://proxy.cors.sh/${url}`,
+  },
+  {
+    // Fallback 4 - thingproxy (reliable for JSON APIs)
+    name: 'thingproxy',
+    formatUrl: (url: string) => `https://thingproxy.freeboard.io/fetch/${url}`,
   },
 ];
 

@@ -5,7 +5,7 @@
  * early-stage ideas that are being validated in English markets
  * and could be imported to Spanish-speaking markets.
  *
- * CORS Solution: Uses CORS proxy for HTML scraping
+ * CORS Solution: Uses Cloudflare Worker proxy (no CORS issues)
  *
  * Great for finding:
  * - Early-stage startups before they go mainstream
@@ -14,7 +14,7 @@
  * - Import opportunities for LATAM/Spain
  */
 
-import { fetchHtmlWithCorsProxy } from '../utils/corsProxy';
+import { config } from '@/config';
 
 export interface BetaListStartup {
   id: string;
@@ -35,8 +35,8 @@ export interface BetaListSearchResult {
 }
 
 /**
- * Search BetaList (via CORS proxy for HTML scraping)
- * Uses site scraping since no direct API available
+ * Search BetaList via Cloudflare Worker proxy
+ * Worker handles HTML scraping and returns parsed JSON
  */
 export async function searchBetaList(
   query: string,
@@ -48,15 +48,36 @@ export async function searchBetaList(
   const { maxResults = 15, category } = options;
 
   try {
-    const searchUrl = category
-      ? `https://betalist.com/topics/${category}`
-      : `https://betalist.com/startups`;
+    const endpoint = category
+      ? `${config.api.baseUrl}/api/betalist/topics/${category}`
+      : `${config.api.baseUrl}/api/betalist/startups`;
 
-    // Use CORS proxy for HTML scraping
-    const html = await fetchHtmlWithCorsProxy(searchUrl);
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
 
-    // Parse startup cards from HTML
-    const items = parseBetaListHTML(html, query, maxResults);
+    const data = await response.json();
+    const startups = (data.startups || []) as Array<{
+      id: string;
+      name: string;
+      tagline: string;
+      url: string;
+      category: string;
+    }>;
+
+    // Transform to our format and filter by query
+    const items: BetaListStartup[] = startups
+      .slice(0, maxResults)
+      .filter((s) => !query || s.name.toLowerCase().includes(query.toLowerCase()) || s.tagline.toLowerCase().includes(query.toLowerCase()))
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        tagline: s.tagline,
+        description: s.tagline,
+        url: s.url,
+        category: s.category || 'startup',
+        submittedAt: new Date().toISOString(),
+        isImportOpportunity: !s.name.toLowerCase().includes('español') && !s.name.toLowerCase().includes('latam'),
+      }));
 
     console.log(`[BetaList] Found ${items.length} startups for "${query || category || 'all'}"`);
 
@@ -66,97 +87,9 @@ export async function searchBetaList(
       query,
       totalCount: items.length,
     };
-  } catch (error) {
-    console.debug('[BetaList] Search failed (CORS proxy):', error);
+  } catch {
     return { items: [], source: 'betalist', query, totalCount: 0 };
   }
-}
-
-/**
- * Parse BetaList HTML to extract startup data
- */
-function parseBetaListHTML(
-  html: string,
-  query: string,
-  maxResults: number
-): BetaListStartup[] {
-  const items: BetaListStartup[] = [];
-
-  // Look for startup cards in the HTML
-  // BetaList uses article tags with startup data
-  const startupRegex =
-    /<article[^>]*class="[^"]*startup[^"]*"[^>]*>([\s\S]*?)<\/article>/gi;
-  const titleRegex = /<h\d[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/h\d>/i;
-  const taglineRegex =
-    /<p[^>]*class="[^"]*tagline[^"]*"[^>]*>([^<]+)<\/p>/i;
-  const linkRegex = /<a[^>]*href="(\/startups\/[^"]+)"[^>]*>/i;
-  const categoryRegex =
-    /<span[^>]*class="[^"]*category[^"]*"[^>]*>([^<]+)<\/span>/i;
-
-  let match;
-  while ((match = startupRegex.exec(html)) !== null && items.length < maxResults) {
-    const articleHTML = match[1];
-
-    const titleMatch = titleRegex.exec(articleHTML);
-    const taglineMatch = taglineRegex.exec(articleHTML);
-    const linkMatch = linkRegex.exec(articleHTML);
-    const categoryMatch = categoryRegex.exec(articleHTML);
-
-    if (titleMatch && taglineMatch) {
-      const name = titleMatch[1].trim();
-      const tagline = taglineMatch[1].trim();
-      const slug = linkMatch ? linkMatch[1] : `/startups/${name.toLowerCase().replace(/\s+/g, '-')}`;
-      const category = categoryMatch ? categoryMatch[1].trim().toLowerCase() : 'startup';
-
-      // Check if this is an import opportunity for Spanish market
-      const combinedText = `${name} ${tagline}`.toLowerCase();
-      const isImportOpportunity = !combinedText.includes('español') &&
-        !combinedText.includes('spanish') &&
-        !combinedText.includes('latam') &&
-        !combinedText.includes('mexico') &&
-        !combinedText.includes('argentina');
-
-      // Filter by query if provided
-      if (!query || combinedText.includes(query.toLowerCase())) {
-        items.push({
-          id: `betalist-${slug.replace('/startups/', '')}`,
-          name,
-          tagline,
-          description: tagline, // BetaList cards typically show tagline
-          url: `https://betalist.com${slug}`,
-          category,
-          submittedAt: new Date().toISOString(), // BetaList doesn't show dates in cards
-          isImportOpportunity,
-        });
-      }
-    }
-  }
-
-  // If regex parsing fails, try JSON-LD parsing (some pages have structured data)
-  if (items.length === 0) {
-    const jsonLdRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
-    while ((match = jsonLdRegex.exec(html)) !== null) {
-      try {
-        const jsonData = JSON.parse(match[1]);
-        if (jsonData['@type'] === 'Product' || jsonData['@type'] === 'SoftwareApplication') {
-          items.push({
-            id: `betalist-${jsonData.name?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`,
-            name: jsonData.name || 'Unknown',
-            tagline: jsonData.description?.slice(0, 100) || '',
-            description: jsonData.description || '',
-            url: jsonData.url || 'https://betalist.com',
-            category: 'startup',
-            submittedAt: jsonData.datePublished || new Date().toISOString(),
-            isImportOpportunity: true,
-          });
-        }
-      } catch {
-        // JSON parsing failed, continue
-      }
-    }
-  }
-
-  return items;
 }
 
 /**
@@ -208,8 +141,8 @@ export async function getBetaListTrending(): Promise<BetaListStartup[]> {
   try {
     const result = await searchBetaList('', { maxResults: 20 });
     return result.items;
-  } catch (error) {
-    console.error('[BetaList] Failed to get trending:', error);
+  } catch {
+    // Silent fail - CORS proxy may not work for HTML scraping
     return [];
   }
 }

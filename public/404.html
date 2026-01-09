@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/forge-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="The Forge - Página no encontrada" />
+    <title>404 | The Forge</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0a0a0f;
+        color: #e2e8f0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .bg-gradient {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      .bg-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 25%;
+        width: 24rem;
+        height: 24rem;
+        background: rgba(99, 102, 241, 0.05);
+        border-radius: 9999px;
+        filter: blur(48px);
+      }
+      .bg-gradient::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 25%;
+        width: 24rem;
+        height: 24rem;
+        background: rgba(139, 92, 246, 0.05);
+        border-radius: 9999px;
+        filter: blur(48px);
+      }
+      .container {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 1.5rem;
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .logo {
+        margin-bottom: 2rem;
+        animation: scaleIn 0.5s ease-out 0.2s both;
+      }
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .logo svg {
+        width: 80px;
+        height: 80px;
+      }
+      h1 {
+        font-size: 6rem;
+        font-weight: 900;
+        background: linear-gradient(to right, #818cf8, #a78bfa, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.5s ease-out 0.3s both;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+        animation: fadeIn 0.5s ease-out 0.4s both;
+      }
+      p {
+        color: #94a3b8;
+        margin-bottom: 2rem;
+        max-width: 28rem;
+        margin-left: auto;
+        margin-right: auto;
+        animation: fadeIn 0.5s ease-out 0.5s both;
+      }
+      .buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        justify-content: center;
+        animation: fadeIn 0.5s ease-out 0.6s both;
+      }
+      @media (min-width: 640px) {
+        .buttons {
+          flex-direction: row;
+        }
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+      }
+      .btn-primary {
+        background: linear-gradient(to right, #4f46e5, #7c3aed);
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(to right, #6366f1, #8b5cf6);
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .footer {
+        margin-top: 4rem;
+        color: #475569;
+        font-size: 0.875rem;
+        animation: fadeIn 0.5s ease-out 0.8s both;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="forgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#6366f1"/>
+              <stop offset="100%" style="stop-color:#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" rx="20" fill="url(#forgeGrad)"/>
+          <path d="M50 20 L70 35 L70 50 L50 65 L30 50 L30 35 Z" fill="none" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M50 35 L60 42.5 L60 50 L50 57.5 L40 50 L40 42.5 Z" fill="white" opacity="0.9"/>
+          <circle cx="50" cy="75" r="5" fill="white" opacity="0.8"/>
+        </svg>
+      </div>
+      <h1>404</h1>
+      <h2>Pagina no encontrada</h2>
+      <p>La pagina que buscas no existe o ha sido movida. Vuelve al inicio para seguir forjando ideas.</p>
+      <div class="buttons">
+        <a href="/" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Ir al inicio
+        </a>
+        <button onclick="history.back()" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          Volver atras
+        </button>
+      </div>
+      <div class="footer">The Forge - Opportunity Intelligence</div>
+    </div>
+  </body>
+</html>

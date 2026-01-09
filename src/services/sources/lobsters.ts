@@ -7,7 +7,7 @@
  * API: https://lobste.rs/ - JSON endpoints available
  * No authentication required, no rate limits documented
  *
- * CORS Solution: Uses CORS proxy for browser requests
+ * CORS Solution: Uses Cloudflare Worker proxy (no CORS issues)
  *
  * Great for finding:
  * - Technical discussions about tools and frameworks
@@ -15,7 +15,7 @@
  * - New project announcements
  */
 
-import { fetchJsonWithCorsProxy } from '../utils/corsProxy';
+import { config } from '@/config';
 
 export interface LobstersStory {
   id: string;
@@ -36,8 +36,6 @@ export interface LobstersSearchResult {
   query: string;
 }
 
-const LOBSTERS_BASE_URL = 'https://lobste.rs';
-
 /**
  * Parse Lobsters API response to our format
  */
@@ -57,47 +55,47 @@ function parseStories(data: any[]): LobstersStory[] {
 }
 
 /**
- * Get hottest stories from Lobsters (via CORS proxy)
+ * Get hottest stories from Lobsters via Cloudflare Worker
  */
 export async function getHottestStories(page = 1): Promise<LobstersStory[]> {
   try {
-    const url = `${LOBSTERS_BASE_URL}/hottest.json?page=${page}`;
-    const data = await fetchJsonWithCorsProxy<any[]>(url);
+    const response = await fetch(`${config.api.baseUrl}/api/lobsters/hottest?page=${page}`);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+    const data = await response.json();
 
     console.log(`[Lobsters] Got ${data.length || 0} hottest stories`);
     return parseStories(data);
-  } catch (error) {
-    console.debug('[Lobsters] Failed to fetch hottest (CORS proxy):', error);
+  } catch {
     return [];
   }
 }
 
 /**
- * Get newest stories from Lobsters (via CORS proxy)
+ * Get newest stories from Lobsters via Cloudflare Worker
  */
 export async function getNewestStories(page = 1): Promise<LobstersStory[]> {
   try {
-    const url = `${LOBSTERS_BASE_URL}/newest.json?page=${page}`;
-    const data = await fetchJsonWithCorsProxy<any[]>(url);
+    const response = await fetch(`${config.api.baseUrl}/api/lobsters/newest?page=${page}`);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+    const data = await response.json();
 
     return parseStories(data);
-  } catch (error) {
-    console.debug('[Lobsters] Failed to fetch newest (CORS proxy):', error);
+  } catch {
     return [];
   }
 }
 
 /**
- * Get stories by tag (via CORS proxy)
+ * Get stories by tag via Cloudflare Worker
  */
 export async function getStoriesByTag(tag: string, page = 1): Promise<LobstersStory[]> {
   try {
-    const url = `${LOBSTERS_BASE_URL}/t/${tag}.json?page=${page}`;
-    const data = await fetchJsonWithCorsProxy<any[]>(url);
+    const response = await fetch(`${config.api.baseUrl}/api/lobsters/tag/${tag}?page=${page}`);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+    const data = await response.json();
 
     return parseStories(data);
-  } catch (error) {
-    console.debug(`[Lobsters] Failed to fetch tag ${tag} (CORS proxy):`, error);
+  } catch {
     return [];
   }
 }
